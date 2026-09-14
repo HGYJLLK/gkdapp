@@ -14,6 +14,7 @@ export class QueryService extends BaseService {
       fields,
       order,
       group,
+      params = [],
     }: {
       tables: string;
       wheres: string;
@@ -22,6 +23,8 @@ export class QueryService extends BaseService {
       group?: string;
       current: number;
       pageSize: number;
+      /** wheres 中 ? 占位符对应的参数，用户输入务必走这里而不是拼进 wheres */
+      params?: any[];
     }
   ) {
     if (!fields) {
@@ -44,8 +47,8 @@ export class QueryService extends BaseService {
       tj += ' limit ' + (current - 1) * pageSize + ',' + pageSize;
     }
     sql += tj;
-    const data = await entityManager.query(sql);
-    const count = await entityManager.query(countSql);
+    const data = await entityManager.query(sql, params);
+    const count = await entityManager.query(countSql, params);
     return {
       pageSize,
       current,

@@ -34,24 +34,40 @@ export class BaseappCashController extends BaseController {
   @Post('/register')
   @Validate()
   async register(@Body() dto: CashRegisterDTO) {
-    const { canICash, takerNo } = await this.cashService.canICashByTaker(
-      dto.amount
+    // 余额检查 + 插入不是原子操作，用 redis 锁防止并发请求超额提现
+    const lockKey = `lock:cash:${this.ctx.userInfo.userNo}`;
+    const locked = await this.cashService.redis.set(
+      lockKey,
+      '1',
+      'EX',
+      10,
+      'NX'
     );
-    if (!canICash) {
-      throw new DefaultError('提现金额大于超出账户余额，不可提现');
+    if (!locked) {
+      throw new DefaultError('操作过于频繁，请稍后再试');
     }
-    const res = await this.cashService.cashEntity.insert({
-      cashBy: 'taker',
-      cashByNo: takerNo,
-      status: 0,
-      amount: dto.amount,
-      bankNo: dto.bankNo,
-      cashNo: this.nanoid(16),
-    });
-    if (!res.raw.insertId) {
-      throw new DefaultError('申请提现失败');
+    try {
+      const { canICash, takerNo } = await this.cashService.canICashByTaker(
+        dto.amount
+      );
+      if (!canICash) {
+        throw new DefaultError('提现金额大于超出账户余额，不可提现');
+      }
+      const res = await this.cashService.cashEntity.insert({
+        cashBy: 'taker',
+        cashByNo: takerNo,
+        status: 0,
+        amount: dto.amount,
+        bankNo: dto.bankNo,
+        cashNo: this.nanoid(16),
+      });
+      if (!res.raw.insertId) {
+        throw new DefaultError('申请提现失败');
+      }
+      return this.responseSuccess('提现申请已提交');
+    } finally {
+      await this.cashService.redis.del(lockKey);
     }
-    return this.responseSuccess('提现申请已提交');
   }
 
   /**

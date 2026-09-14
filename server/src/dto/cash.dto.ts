@@ -2,10 +2,11 @@ import { Rule, RuleType } from '@midwayjs/validate';
 import { SelectCommonDTO } from './common.dto';
 
 export class CashRegisterDTO {
-  @Rule(RuleType.number())
+  // 必须为正数、最多两位小数，否则可通过负数提现虚增余额
+  @Rule(RuleType.number().positive().precision(2).max(1000000).required())
   amount: number;
 
-  @Rule(RuleType.string())
+  @Rule(RuleType.string().max(64).required())
   bankNo: string;
 }
 

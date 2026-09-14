@@ -52,29 +52,63 @@ export class OrderSchoolController extends BaseController {
   @Inject()
   configService: ConfigService;
 
+  /**
+   * 微信回调应答。注意 js2xml 必须用 compact 模式，否则输出为空字符串，
+   * 微信收不到 SUCCESS 会一直重复推送
+   */
+  wxReply(code: 'SUCCESS' | 'FAIL', msg: string) {
+    this.ctx.set('Content-Type', 'text/xml');
+    return js2xml(
+      { xml: { return_code: { _cdata: code }, return_msg: { _cdata: msg } } },
+      { compact: true }
+    );
+  }
+
   @Post('/pay/callback')
   async payCallback(@Body() body) {
-    const data = ((await this.wxService.xml2JSON(body)) as any).xml;
-    if (data.return_code[0] === 'SUCCESS') {
-      await this.orderSchoolService.wxPayCallback(
-        data.out_trade_no[0],
-        'wxpay'
+    const fail = (msg: string) => {
+      this.ctx.logger.warn('[wxpay notify rejected] %s', msg);
+      return this.wxReply('FAIL', msg);
+    };
+    let data: Record<string, string>;
+    try {
+      data = this.wxService.flattenXml(
+        ((await this.wxService.xml2JSON(body)) as any).xml
       );
+    } catch (e) {
+      return fail('bad xml');
     }
-    return js2xml({
-      return_code: 'SUCCESS',
-      return_msg: 'OK',
-    });
+    if (data.return_code !== 'SUCCESS') {
+      // 微信通信失败，不处理，返回 SUCCESS 避免重复推送
+      return this.wxReply('SUCCESS', 'OK');
+    }
+    // 必须验签，否则任何人都可以伪造支付成功通知
+    if (!(await this.wxService.verifyPayNotify(data))) {
+      return fail('sign error');
+    }
+    if (data.result_code !== 'SUCCESS') {
+      return fail('result_code fail');
+    }
+    if (!data.out_trade_no || !data.total_fee) {
+      return fail('missing fields');
+    }
+    try {
+      await this.orderSchoolService.wxPayCallback(
+        data.out_trade_no,
+        'wxpay',
+        parseInt(data.total_fee, 10)
+      );
+    } catch (e) {
+      return fail((e as Error).message);
+    }
+    return this.wxReply('SUCCESS', 'OK');
   }
 
   @Post('/refund/callback')
   async refundCallback(@Body() body) {
     const data = ((await this.wxService.xml2JSON(body)) as any).xml;
     await this.wxCallback(data);
-    return js2xml({
-      return_code: 'SUCCESS',
-      return_msg: 'OK',
-    });
+    return this.wxReply('SUCCESS', 'OK');
   }
 
   async wxCallback(data: any) {
@@ -264,8 +298,10 @@ export class OrderSchoolController extends BaseController {
     let wheres = `so.intoHall=1 and so.userNo=u.userNo and so.status in (${
       statuses.length > 0 ? statuses.toString() : '1,2,3,4'
     })`;
+    const params: any[] = [];
     if (dto.orderType) {
-      wheres += ` and so.orderType = '${dto.orderType}'`;
+      wheres += ' and so.orderType = ?';
+      params.push(dto.orderType);
     }
     const result = await this.queryService.select(
       this.orderSchoolService.schoolOrdersEntity,
@@ -277,6 +313,7 @@ export class OrderSchoolController extends BaseController {
         current: dto.current,
         pageSize: dto.pageSize,
         order: 'so.createTime desc',
+        params,
       }
     );
 

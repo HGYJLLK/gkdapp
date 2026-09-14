@@ -63,10 +63,35 @@ export class SchoolOrdersService extends BaseService {
     return this.schoolOrdersEntity.metadata.tableName;
   }
 
-  async wxPayCallback(orderNo: string, payType: 'wxpay' | 'alipay') {
+  /**
+   * 支付成功回调
+   * @param orderNo 商户订单号
+   * @param payType
+   * @param paidFee 实际支付金额（分），必须与订单金额一致
+   */
+  async wxPayCallback(
+    orderNo: string,
+    payType: 'wxpay' | 'alipay',
+    paidFee?: number
+  ) {
     const order = await this.schoolOrdersEntity.findOne({
       where: { orderNo },
     });
+    if (!order) {
+      throw new DefaultError('订单不存在');
+    }
+    if (order.status !== 0) {
+      // 已处理过（微信会重复推送），幂等返回
+      return true;
+    }
+    if (paidFee !== undefined) {
+      const expectFee = Math.floor(Number(order.totalPrice) * 100);
+      if (!Number.isFinite(paidFee) || paidFee !== expectFee) {
+        throw new DefaultError(
+          `支付金额不一致 expect=${expectFee} got=${paidFee}`
+        );
+      }
+    }
 
     const update = await this.schoolOrdersEntity.update(
       {

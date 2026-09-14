@@ -3,7 +3,7 @@ import { CONFIG_APPAUTH_INFO, CONFIG_APPMCH } from '../constant';
 import { AppauthUpsertDTO, AppMchDTO } from '../dto/config.dto';
 import { BaseService } from './base.service';
 import { ConfigService } from './config.service';
-import { createHash } from 'crypto';
+import { createHash, createHmac, timingSafeEqual } from 'crypto';
 import { parseString } from 'xml2js';
 import { DefaultError } from '../error/default.error';
 @Provide()
@@ -235,6 +235,61 @@ export class WxService extends BaseService {
     }
     str = str.substring(1);
     return str;
+  }
+
+  /**
+   * xml2js 的结果每个字段都是数组，转成扁平对象
+   */
+  flattenXml(xml: Record<string, any>) {
+    const out: Record<string, string> = {};
+    for (const k of Object.keys(xml || {})) {
+      const v = xml[k];
+      out[k] = Array.isArray(v) ? String(v[0]) : String(v);
+    }
+    return out;
+  }
+
+  /**
+   * 校验微信支付 v2 回调签名（MD5），并校验商户号/appid
+   * 注意：所有字段参与签名，空值不参与，sign 本身不参与
+   */
+  async verifyPayNotify(data: Record<string, string>) {
+    const { appAuto, appMch } = this.getVersionInfo();
+    const appconfig = (await this.configService.getConfig(
+      appAuto
+    )) as AppauthUpsertDTO;
+    const config = (await this.configService.getConfig(appMch)) as AppMchDTO;
+    if (!config?.wxMchSecert || !config?.wxMchId) {
+      return false;
+    }
+    if (!data.sign) {
+      return false;
+    }
+    if (data.mch_id !== config.wxMchId) {
+      return false;
+    }
+    if (appconfig?.wxAppId && data.appid !== appconfig.wxAppId) {
+      return false;
+    }
+    const signType = data.sign_type || 'MD5';
+    const params: Record<string, string> = {};
+    for (const k of Object.keys(data)) {
+      if (k === 'sign' || data[k] === '' || data[k] === undefined) continue;
+      params[k] = data[k];
+    }
+    const str = this.raw(params) + '&key=' + config.wxMchSecert;
+    let expected: string;
+    if (signType === 'HMAC-SHA256') {
+      expected = createHmac('sha256', config.wxMchSecert)
+        .update(str, 'utf8')
+        .digest('hex');
+    } else {
+      expected = createHash('md5').update(str, 'utf8').digest('hex');
+    }
+    expected = expected.toUpperCase();
+    const given = String(data.sign).toUpperCase();
+    if (expected.length !== given.length) return false;
+    return timingSafeEqual(Buffer.from(expected), Buffer.from(given));
   }
 
   async xml2JSON(cbdata) {
