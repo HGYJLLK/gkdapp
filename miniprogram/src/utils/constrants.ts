@@ -1,5 +1,5 @@
 export const API = () => {
-  return "http://localhost:8001/api/";
+  return "https://gkdapp-api.jcygo.com/api/";
 };
 export const SCHOOL_TYPE = "school";
 
