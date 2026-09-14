@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "postinstall": "patch-package",
     "local-wx": "cross-env NODE_ENV=local UNI_PLATFORM=mp-weixin vue-cli-service uni-build --watch",
     "dev-wx": "cross-env NODE_ENV=development UNI_PLATFORM=mp-weixin vue-cli-service uni-build --watch",
     "dev-ali": "cross-env NODE_ENV=development UNI_PLATFORM=mp-alipay vue-cli-service uni-build --watch",
@@ -106,6 +107,7 @@
     "jest": "^25.4.0",
     "mini-types": "*",
     "miniprogram-api-typings": "*",
+    "patch-package": "6.4.7",
     "postcss-comment": "^2.0.0",
     "sass": "1.32.13",
     "typescript": "^3.0.0",

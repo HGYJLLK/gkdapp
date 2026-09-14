@@ -1,0 +1,24 @@
+diff --git a/node_modules/postcss-urlrewrite/lib/urlrewrite.js b/node_modules/postcss-urlrewrite/lib/urlrewrite.js
+index f0c6bd1..9646226 100644
+--- a/node_modules/postcss-urlrewrite/lib/urlrewrite.js
++++ b/node_modules/postcss-urlrewrite/lib/urlrewrite.js
+@@ -13,16 +13,16 @@ var validateConfig = function( config ) {
+         throw new Error( 'You must configure at least one replace rule.' );
+     }
+ 
+-    if ( !util.isArray( config.rules ) && typeof config.rules !== 'function' ) {
++    if ( !Array.isArray( config.rules ) && typeof config.rules !== 'function' ) {
+         throw new Error( 'Rules must be an Array or Function.' );
+     }
+ 
+-    if ( util.isArray( config.rules ) ) {
++    if ( Array.isArray( config.rules ) ) {
+         config.rules.forEach( function ( rule ) {
+             if ( !rule.from && !rule.to ) {
+                 throw new Error( 'Rules must be in { from: "from", to: "to" } format.' );
+             }
+-            else if ( typeof rule.from !== 'string' && !util.isRegExp( rule.from ) ) {
++            else if ( typeof rule.from !== 'string' && !( rule.from instanceof RegExp ) ) {
+                 throw new Error( 'Rule.from must be a String or RegExp.' );
+             }
+             else if ( [ 'string', 'function' ].indexOf( typeof rule.to ) === -1 ) {
