@@ -5,3 +5,5 @@ yarn.lock
 server/src/config/config.local.ts
 server/src/config/config.prod.ts
 server/src/config/config.dev.ts
+.env
+.env.*
