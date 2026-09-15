@@ -37,11 +37,8 @@ export class PublishController extends BaseController {
       Object.assign(calculate, {
         userNo: this.ctx.userInfo.userNo,
         orderNo,
-        status: (this.ctx.userInfo.userType === 'weixin' ||
-        this.ctx.userInfo.userType === 'alipay' ||
-        this.ctx.userInfo.userType === 'toutiao'
-          ? 0
-          : 1) as OrderType,
+        // 项目只做微信小程序，非微信用户（目前只有后台代下单）走已支付状态
+        status: (this.ctx.userInfo.userType === 'weixin' ? 0 : 1) as OrderType,
         deadlineTime: Date.now() + dto.deadlineTime * 60 * 60 * 1000,
         mchStatus: (calculate.orderType === 'print'
           ? 0
@@ -58,11 +55,7 @@ export class PublishController extends BaseController {
       throw new DefaultError('发布失败');
     }
 
-    if (
-      this.ctx.userInfo.userType === 'weixin' ||
-      this.ctx.userInfo.userType === 'alipay' ||
-      this.ctx.userInfo.userType === 'toutiao'
-    ) {
+    if (this.ctx.userInfo.userType === 'weixin') {
       // 15分钟内未支付自动取消订单
       await this.queueService.execute(
         SchoolOrderWaitPayToCloseTask,
