@@ -44,8 +44,11 @@ export class UserController extends BaseController {
   @Post('/register')
   @Validate()
   async register(@Body() dto: UserMobileVerifyDTO) {
-    // 验证短信
-    if (dto.verifyCode !== '111111') {
+    // 验证短信：万能验证码只在非生产环境放行，方便没配短信服务时本地测试；
+    // 生产环境必须走真实短信验证码，否则任何人拿别人手机号都能注册
+    const isTestBypass =
+      process.env.NODE_ENV !== 'prod' && dto.verifyCode === '111111';
+    if (!isTestBypass) {
       await this.smsService.doVerifyCode(dto.verifyCode, dto.mobileNumber);
     }
     // 查询用户
