@@ -101,6 +101,13 @@ export class WxappController extends BaseController {
     if (!wxapp) {
       throw new LoginError('用户不存在');
     }
+    // 已经绑定过手机号，不用再走一次收费的手机号快速验证
+    if (wxapp.userNo) {
+      const existUser = await this.userService.findByNo(wxapp.userNo);
+      if (existUser) {
+        return this.responseSuccess('ok', this.userService.getUserInfo(existUser));
+      }
+    }
     const result = await this.wxappService.getUserPhoneNumber(loginDTO.code);
     let user = await this.userService.findByMobile(
       result.phone_info.purePhoneNumber
