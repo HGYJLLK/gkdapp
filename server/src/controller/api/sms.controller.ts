@@ -1,3 +1,4 @@
+import { randomInt } from 'crypto';
 import { Body, Controller, Inject, Post } from '@midwayjs/decorator';
 import { BaseController } from '../base.controller';
 import { MobileNumberDTO } from '../../dto/user.dto';
@@ -14,10 +15,10 @@ export class SmsController extends BaseController {
     if (count >= 3) {
       throw new DefaultError('您的操作过于频繁，请稍后再试');
     }
-    const code = (Math.random() + '').split('.')[1].substring(0, 6);
+    const code = randomInt(0, 1000000).toString().padStart(6, '0');
     await this.smsService.sendSmsVerifyCode(dto.mobileNumber, code);
     await this.smsService.setSendVerifyRecord(code, dto.mobileNumber);
     await this.smsService.addSendVerifyCodeCount();
-    return this.responseSuccess('ok', '短信发送成功');
+    return this.responseSuccess('短信请求已受理，请留意手机短信', 'ok');
   }
 }

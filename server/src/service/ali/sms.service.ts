@@ -4,6 +4,7 @@ import { ConfigService } from '../config.service';
 import { CONFIG_ALI } from '../../constant';
 import { AliDTO } from '../../dto/config.dto';
 import { DefaultError } from '../../error/default.error';
+import { readSmsEnv } from '../../utils/sms-env';
 const Core = require('@alicloud/pop-core');
 @Provide()
 export class AliSmsService extends BaseService {
@@ -11,7 +12,21 @@ export class AliSmsService extends BaseService {
   configService: ConfigService;
 
   async sendSmsVerifyCode(phoneNumber: string, code: string) {
-    const ali = (await this.configService.getConfig(CONFIG_ALI)) as AliDTO;
+    let envConfig;
+    try {
+      envConfig = readSmsEnv();
+    } catch (error) {
+      throw new DefaultError(error.message);
+    }
+    const ali =
+      envConfig || ((await this.configService.getConfig(CONFIG_ALI)) as AliDTO);
+    if (
+      !ali ||
+      ![ali.accessKeyId, ali.accessKeySecret, ali.smsSignName, ali.smsTemplateCode]
+        .every(value => typeof value === 'string' && value.trim())
+    ) {
+      throw new DefaultError('请先配置阿里云短信 AccessKey、签名名称和模板 CODE');
+    }
     const client = new Core({
       accessKeyId: ali.accessKeyId,
       accessKeySecret: ali.accessKeySecret,
@@ -27,20 +42,26 @@ export class AliSmsService extends BaseService {
       }),
     };
 
-    return new Promise(resolve => {
-      client
-        .request('SendSms', params, { method: 'POST', formatParams: false })
-        .then(
-          result => {
-            resolve(result);
-            console.log('短信验证码:', JSON.stringify(result));
-          },
-          ex => {
-            resolve(ex);
-            console.log(ex);
-          }
-        );
-    });
+    let result;
+    try {
+      result = await client.request('SendSms', params, {
+        method: 'POST',
+        formatParams: false,
+      });
+    } catch (error) {
+      // SDK 异常可能带签名请求和敏感参数，不记录或回传原始异常。
+      throw new DefaultError('短信请求失败，请检查短信配置或稍后重试');
+    }
+    if (!result || result.Code !== 'OK') {
+      const errorCode =
+        typeof result?.Code === 'string' &&
+        /^[a-zA-Z0-9_.-]{1,80}$/.test(result.Code)
+          ? result.Code
+          : 'UNKNOWN';
+      throw new DefaultError(`短信请求未受理（${errorCode}），请检查签名报备、模板及额度`);
+    }
+    // OK 只代表平台受理，最终送达以运营商回执为准。
+    return result;
   }
 
   getAppNo() {
