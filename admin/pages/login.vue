@@ -14,7 +14,7 @@
         </div>
       </div>
       <div class="text-center fo-12 fo-6 mt-40">
-        Copyright © 2022 {{ companyName || '码里码外' }} All right reserved.<a
+        Copyright © 2026 {{ companyName || '极创云构' }} All right reserved.<a
           v-if="recordNo"
           href="https://beian.miit.gov.cn/"
           target="_blank"

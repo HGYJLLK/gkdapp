@@ -37,8 +37,8 @@ export default EditMixin.extend({
   data() {
     return {
       formData: {
-        systemName: '后台管理系统-码里码外',
-        companyName: '码里码外',
+        systemName: '后台管理系统-极创云构',
+        companyName: '极创云构',
         recordNo: '',
         logo: ''
       },
