@@ -2,6 +2,7 @@
   <scroll-view
     class="scroll-x"
     scroll-x="true"
+    enable-flex
     :style="{ height, width, marginTop: mt }"
     ><slot></slot
   ></scroll-view>
