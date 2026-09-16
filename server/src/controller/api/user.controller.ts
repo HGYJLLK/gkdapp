@@ -41,6 +41,14 @@ export class UserController extends BaseController {
     return this.responseSuccess('ok', this.userService.getUserInfo(user));
   }
 
+  // 专供地址簿等需要联系电话的表单自动填充使用，返回未脱敏的真实手机号；
+  // /info 出于隐私考虑始终返回脱敏号码，不能拿来当联系方式回填
+  @Get('/mobile', { middleware: [AppMiddleware] })
+  async mobile() {
+    const user = await this.userService.findByNo(this.ctx.userInfo.userNo);
+    return this.responseSuccess('ok', { mobileNumber: user.mobileNumber });
+  }
+
   @Post('/register')
   @Validate()
   async register(@Body() dto: UserMobileVerifyDTO) {

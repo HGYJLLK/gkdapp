@@ -189,6 +189,8 @@ export const smsCode = (data: { mobileNumber: string }) =>
 
 export const userInfo = () => $get("user/info", {});
 
+export const userMobile = () => $get("user/mobile", {});
+
 export const userUpdate = (data: {
   avatarUrl?: string;
   nickName?: string;

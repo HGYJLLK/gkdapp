@@ -82,6 +82,7 @@ import {
   addressUpdate,
   addressDel,
   addressInfo,
+  userMobile,
 } from "@/utils/api";
 import { SchoolAddressOptions } from "@/utils/constrants";
 
@@ -132,8 +133,8 @@ export default Vue.extend({
     if (options.addressNo) {
       this.addressNo = options.addressNo;
       this.getAddressInfo();
-    } else if (this.$store.state.profile.mobileNumber) {
-      this.formData.mobileNumber = this.$store.state.profile.mobileNumber;
+    } else {
+      this.fillDefaultMobile();
     }
     this.getSchoolAddressInfo();
   },
@@ -252,6 +253,13 @@ export default Vue.extend({
       });
     },
 
+    // 新增地址时带出用户注册手机号；user/info 返回的是脱敏号码，不能用来填联系方式
+    async fillDefaultMobile() {
+      const res = await userMobile();
+      if (res.code === 200 && res.data.mobileNumber) {
+        this.formData.mobileNumber = res.data.mobileNumber;
+      }
+    },
     // 获取校园地址
     async getSchoolAddressInfo() {
       uni.showLoading({ title: "加载地址中" });
