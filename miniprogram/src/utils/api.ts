@@ -121,7 +121,7 @@ export const orderTaker = (data: { orderNo: string }) =>
 export const fetchSchoolCarousel = () =>
   $get("baseapp/school/carousel/info", {});
 
-export const orderTakerGetd = (data: { orderNo: string }) =>
+export const orderTakerGetd = (data: { orderNo: string; photoUrl: string }) =>
   post("baseapp/order/taker/getd", data);
 export const orderTakerGetdByMch = (data: { orderNo: string }) =>
   post("baseapp/order/mch/getd", data);

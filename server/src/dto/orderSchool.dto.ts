@@ -25,6 +25,12 @@ export class AdminOrderSchoolTakerDTO extends OrderSchoolInfoDTO {
   takerNo: string;
 }
 
+export class OrderTakerGetdDTO extends OrderSchoolInfoDTO {
+  // 送达/取件完成凭证照片，必传，防止接单人无凭无据点完成
+  @Rule(RuleType.string().required())
+  photoUrl: string;
+}
+
 export class OrderSchoolInfoTipDTO extends OrderSchoolInfoDTO {
   @Rule(RuleType.string().required())
   cancelBy: 'user' | 'taker' | 'mch';

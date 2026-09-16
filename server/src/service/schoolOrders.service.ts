@@ -220,13 +220,16 @@ export class SchoolOrdersService extends BaseService {
   /**
    * 点击配送完成
    */
-  async clickSendComplete(orderNo: string, userNo: string) {
+  async clickSendComplete(orderNo: string, userNo: string, photoUrl: string) {
     return await this.schoolOrdersEntity.manager.transaction(
       async (entity: EntityManager) => {
         const order = await this.checkOrder(orderNo, 2);
         const taker = await this.takerService.checkTaker(userNo);
         if (order.takerNo !== taker.takerNo) {
           throw new DefaultError('您无权操作别人的订单');
+        }
+        if (!photoUrl) {
+          throw new DefaultError('请上传完成凭证照片');
         }
         const update = await entity.update(
           this.schoolOrdersEntity.target,
@@ -237,6 +240,7 @@ export class SchoolOrdersService extends BaseService {
           {
             status: 3,
             getTime: new Date(),
+            photoUrl,
           }
         );
         if (update.affected === 0) {

@@ -181,6 +181,14 @@ export class SchoolOrdersEntity extends Base {
   getTime: Date;
 
   @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    comment: '接单人点击任务完成时上传的凭证照片',
+  })
+  photoUrl: string;
+
+  @Column({
     type: 'datetime',
     width: 6,
     nullable: true,

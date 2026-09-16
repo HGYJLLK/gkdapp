@@ -11,6 +11,7 @@ import {
   OrderSchoolInfoDTO,
   OrderSchoolListDTO,
   OrderSchoolOrderListDTO,
+  OrderTakerGetdDTO,
 } from '../../../dto/orderSchool.dto';
 import { AppMiddleware } from '../../../middleware/app.middleware';
 import { QueryService } from '../../../service/query.service';
@@ -157,10 +158,11 @@ export class OrderSchoolController extends BaseController {
   // 送完时间
   @Post('/taker/getd', { middleware: [AppMiddleware] })
   @Validate()
-  async takerGetd(@Body() dto: OrderSchoolInfoDTO) {
+  async takerGetd(@Body() dto: OrderTakerGetdDTO) {
     const result = await this.orderSchoolService.clickSendComplete(
       dto.orderNo,
-      this.ctx.userInfo.userNo
+      this.ctx.userInfo.userNo,
+      dto.photoUrl
     );
     if (!result) {
       throw new DefaultError('操作失败');

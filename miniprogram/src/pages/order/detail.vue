@@ -109,6 +109,15 @@
         label="确认时间"
         :value="formatDate(info.getTime, 'yyyy/MM/dd hh:mm:ss')"
       />
+      <view v-if="info.photoUrl" class="flex flex-between item-center fo-24 mt-30">
+        <view>完成凭证</view>
+        <image
+          class="proof-photo"
+          :src="info.photoUrl"
+          mode="aspectFill"
+          @click="previewProofPhoto"
+        ></image>
+      </view>
       <DetailInfo
         v-if="info.successTime"
         label="完成时间"
@@ -362,6 +371,11 @@ export default Vue.extend({
   methods: {
     imageCenterCrop,
     formatDate,
+    previewProofPhoto() {
+      uni.previewImage({
+        urls: [this.info.photoUrl],
+      });
+    },
     clearIntv() {
       clearInterval(this.intv as any);
       this.tempTime = 0;
@@ -416,6 +430,11 @@ export default Vue.extend({
     padding: 20rpx;
     background-color: #f3f3f3;
     margin-bottom: 30rpx;
+    border-radius: 8rpx;
+  }
+  .proof-photo {
+    width: 100rpx;
+    height: 100rpx;
     border-radius: 8rpx;
   }
   .order-no-bar {

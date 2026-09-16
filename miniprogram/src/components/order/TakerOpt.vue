@@ -55,6 +55,7 @@ import {
   orderTakerGetdByMch,
   orderTakerMch,
 } from "@/utils/api";
+import { upload } from "@/utils/common";
 export default Vue.extend({
   props: {
     status: {
@@ -89,11 +90,35 @@ export default Vue.extend({
     };
   },
   methods: {
+    async choosePhoto(): Promise<string> {
+      return new Promise((resolve) => {
+        uni.chooseImage({
+          count: 1,
+          sourceType: ["camera"],
+          success: (res) => resolve(res.tempFilePaths[0]),
+          fail: () => resolve(""),
+        });
+      });
+    },
+
     async takerGetd() {
+      const photoPath = await this.choosePhoto();
+      if (!photoPath) {
+        uni.showToast({ title: "请拍照上传完成凭证", icon: "none" });
+        return;
+      }
+      uni.showLoading({
+        title: "上传凭证中",
+      });
+      const photoUrl = (await upload(photoPath)) as string;
+      uni.hideLoading();
+      if (!photoUrl) {
+        return;
+      }
       uni.showLoading({
         title: "操作中",
       });
-      const result = await orderTakerGetd({ orderNo: this.no });
+      const result = await orderTakerGetd({ orderNo: this.no, photoUrl });
       uni.hideLoading();
       if (result.code === 200) {
         this.$emit("refresh");
