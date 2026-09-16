@@ -140,7 +140,10 @@ export class BaseappAddressController extends BaseController {
       if (defaultAddressNo === item.addressNo) {
         item.isDefault = true;
       }
-      if (item.schoolBuild) {
+      // schoolBuild 是 json 类型字段，mysql2 驱动在原始 SQL 查询里就已经
+      // 自动解析成对象了，这里再 JSON.parse 会把对象先 toString 成
+      // "[object Object]" 再解析，直接报 "Unexpected token o" 错误。
+      if (item.schoolBuild && typeof item.schoolBuild === 'string') {
         item.schoolBuild = JSON.parse(item.schoolBuild);
       }
     }
