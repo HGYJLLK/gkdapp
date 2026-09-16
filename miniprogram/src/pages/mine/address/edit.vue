@@ -123,7 +123,7 @@ export default Vue.extend({
     };
   },
 
-  onLoad(options: { type: "add" | "update"; addressNo: string }) {
+  async onLoad(options: { type: "add" | "update"; addressNo: string }) {
     if (options.type) {
       this.editType = options.type;
       uni.setNavigationBarTitle({
@@ -132,11 +132,11 @@ export default Vue.extend({
     }
     if (options.addressNo) {
       this.addressNo = options.addressNo;
-      this.getAddressInfo();
+      await this.getAddressInfo();
     } else {
-      this.fillDefaultMobile();
+      await this.fillDefaultMobile();
     }
-    this.getSchoolAddressInfo();
+    await this.getSchoolAddressInfo();
   },
   methods: {
     async submit() {
