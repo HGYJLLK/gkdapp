@@ -1,6 +1,5 @@
 export const API = () => {
-  // TEMP-LOCAL: 本地调试期间指向本机后端，验证完记得改回线上地址再提交/发布
-  return "http://127.0.0.1:8001/api/";
+  return "https://gkdapp-api.jcygo.com/api/";
 };
 export const SCHOOL_TYPE = "school";
 
