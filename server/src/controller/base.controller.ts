@@ -84,13 +84,16 @@ export class BaseController {
 
   schoolOrderListFilter(result: any) {
     for (const item of result.data) {
-      if (item.startAddress) {
+      // startAddress/endAddress/priceDetails/discountDetails 是 json 类型字段，
+      // mysql2 驱动在原始 SQL 查询里已经自动解析成对象，这里只在仍是字符串时才解析，
+      // 避免把对象 toString 成 "[object Object]" 再解析导致报错。
+      if (item.startAddress && typeof item.startAddress === 'string') {
         item.startAddress = JSON.parse(item.startAddress);
       }
-      if (item.endAddress) {
+      if (item.endAddress && typeof item.endAddress === 'string') {
         item.endAddress = JSON.parse(item.endAddress);
       }
-      if (item.priceDetails) {
+      if (item.priceDetails && typeof item.priceDetails === 'string') {
         item.priceDetails = JSON.parse(item.priceDetails);
       }
       if (item.createTime) {
@@ -99,7 +102,7 @@ export class BaseController {
       if (item.deadlineTime) {
         item.deadlineTime = filterDeadlineTime(parseInt(item.deadlineTime));
       }
-      if (item.discountDetails) {
+      if (item.discountDetails && typeof item.discountDetails === 'string') {
         item.discountDetails = JSON.parse(item.discountDetails);
       }
     }

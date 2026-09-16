@@ -79,7 +79,11 @@ export class AdminTakerController extends BaseController {
       }
     );
     for (const item of result.data) {
-      item.cardImages = JSON.parse(item.cardImages);
+      // cardImages 是 json 类型字段，mysql2 驱动在原始 SQL 查询里已经自动解析成对象，
+      // 这里只在仍是字符串时才解析，避免报错。
+      if (item.cardImages && typeof item.cardImages === 'string') {
+        item.cardImages = JSON.parse(item.cardImages);
+      }
     }
     return this.responseSuccess('ok', result);
   }

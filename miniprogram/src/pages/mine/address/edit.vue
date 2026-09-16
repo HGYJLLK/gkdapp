@@ -56,7 +56,7 @@
         >提交保存</DButton
       >
       <DButton
-        v-if="type === 'add'"
+        v-if="editType === 'update'"
         class="mt-30"
         type="danger"
         radius
@@ -132,6 +132,8 @@ export default Vue.extend({
     if (options.addressNo) {
       this.addressNo = options.addressNo;
       this.getAddressInfo();
+    } else if (this.$store.state.profile.mobileNumber) {
+      this.formData.mobileNumber = this.$store.state.profile.mobileNumber;
     }
     this.getSchoolAddressInfo();
   },
