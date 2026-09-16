@@ -152,8 +152,6 @@
     "selectedColor": "#333333",
     "backgroundColor": "#ffffff",
     "borderStyle": "white",
-    "blurEffect": "extralight",
-    "iconWidth": "20px",
     "list": [
       {
         "pagePath": "pages/index/index",

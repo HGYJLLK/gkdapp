@@ -28,9 +28,5 @@ export default Vue.extend({
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  image {
-    width: 40rpx;
-    height: 40rpx;
-  }
 }
 </style>

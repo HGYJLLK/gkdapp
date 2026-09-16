@@ -6,6 +6,7 @@
         backgroundColor: iconInWhere === 'underBanner' ? '#f3f3f3' : '#ffffff',
       }"
       scroll-y
+      enable-flex
       :refresher-enabled="true"
       :refresher-triggered="isPulldown"
       @scroll="handleScroll"

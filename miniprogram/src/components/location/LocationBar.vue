@@ -3,7 +3,12 @@
     <view class="location-bar flex flex-between item-center">
       <view class="flex flex-start item-center">
         <div class="location-logo">
-          <image v-if="schoolLogo" :src="schoolLogo" mode="aspectFill"></image>
+          <image
+            v-if="schoolLogo"
+            class="location-logo-img"
+            :src="schoolLogo"
+            mode="aspectFill"
+          ></image>
         </div>
         <view class="location-title ell">
           {{ schoolName || "" }}
@@ -45,11 +50,11 @@ export default Vue.extend({
     height: 60rpx;
     border-radius: 60rpx;
     background-color: #f3f3f3;
-    image {
-      width: 60rpx;
-      height: 60rpx;
-      border-radius: 60rpx;
-    }
+  }
+  .location-logo-img {
+    width: 60rpx;
+    height: 60rpx;
+    border-radius: 60rpx;
   }
   .location-title {
     margin-left: 30rpx;
