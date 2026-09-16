@@ -33,7 +33,7 @@
         "
       />
 
-      <view class="p-30">
+      <view v-if="isTaker" class="p-30">
         <ServiceTitleBar
           v-if="iconInWhere === 'underBanner' && list.length > 0"
           title="任务大厅"
@@ -67,7 +67,7 @@ import LocationBar from "@/components/location/LocationBar.vue";
 import ServiceTab from "@/components/service/ServiceTab.vue";
 import OrderItem from "@/components/order/OrderItem.vue";
 import ServiceBtn from "@/components/service/ServiceBtn.vue";
-import { fetchOrderSchoolList, fetchSchoolCarousel } from "@/utils/api";
+import { fetchOrderSchoolList, fetchSchoolCarousel, canITaker } from "@/utils/api";
 import { ServiceData } from "@/store/modules/school";
 import ServiceBar from "@/components/service/ServiceBar.vue";
 import ServiceTitleBar from "@/components/service/TitleBar.vue";
@@ -93,6 +93,7 @@ export default Vue.extend({
       banners: [],
       scrollTop: 0,
       isPulldown: false,
+      isTaker: false,
     };
   },
   computed: {
@@ -122,8 +123,11 @@ export default Vue.extend({
     }
   },
 
-  onShow() {
-    this.getList();
+  async onShow() {
+    await this.checkIsTaker();
+    if (this.isTaker) {
+      this.getList();
+    }
   },
   onReachBottom() {
     if (this.list.length < this.count) {
@@ -159,6 +163,21 @@ export default Vue.extend({
     },
     handleScroll(e: any) {
       this.scrollTop = e.target.scrollTop;
+    },
+    // 只有本地已登录过才去查是否为接单员，游客不发这次请求，避免被强制拉去登录；
+    // 每次都实查而不是只信本地缓存，避免接单员被后台停用后首页还一直显示大厅
+    async checkIsTaker() {
+      if (!uni.getStorageSync("userInfo")) {
+        this.isTaker = false;
+        return;
+      }
+      const result = await canITaker();
+      if (result.code === 200 && result.data) {
+        uni.setStorageSync("takerNo", result.data);
+        this.isTaker = true;
+      } else {
+        this.isTaker = false;
+      }
     },
     async getCarouselInfo() {
       const result = await fetchSchoolCarousel();
