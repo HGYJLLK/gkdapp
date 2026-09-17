@@ -30,12 +30,18 @@ export class CashListDTO extends SelectCommonDTO {
   realname?: string;
 }
 
-export class CashSuccessDTO {
+export class CashActionDTO {
   @Rule(RuleType.string().required())
   cashNo: string;
 }
 
-export class CashFailDTO extends CashSuccessDTO {
+export class CashSuccessDTO extends CashActionDTO {
+  // 管理员打款后上传的转账截图，防止"钱没到账"纠纷无凭无据
+  @Rule(RuleType.string().required())
+  photoUrl: string;
+}
+
+export class CashFailDTO extends CashActionDTO {
   @Rule(RuleType.string().required())
   reason: string;
 }

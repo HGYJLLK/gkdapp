@@ -50,6 +50,13 @@
         <a-tag v-else-if="text.status === 0" color="orange"> 待提现 </a-tag>
         <a-tag v-else color="red"> 提现失败 </a-tag>
         <div v-if="text.status === -1" class="fo-9 fo-12">{{ text.reason }}</div>
+        <a
+          v-if="text.status === 1 && text.photoUrl"
+          class="fo-12"
+          :href="text.photoUrl"
+          target="_blank"
+          >转账凭证</a
+        >
       </template>
       <template slot="createTime" slot-scope="text">
         <div class="fo-12">创建:{{ dayjs(text.createTime).format('YYYY/MM/DD HH:mm') }}</div>
@@ -77,6 +84,7 @@
       />
     </div>
     <CashRefuse v-model="updateVisible" :no="tempNo" @success="getTableData()" />
+    <CashSuccess v-model="successVisible" :no="tempNo" @success="getTableData()" />
     <!-- <MultiCashModel v-model="cashVisible" @refresh="getTableData()" /> -->
   </div>
 </template>
@@ -84,9 +92,10 @@
 import TableDataMixins from '@/plugins/mixins/table-data-mixin.vue';
 import RiderLink from '~/components/base/UserLink/RiderLink.vue';
 import CashRefuse from '@/components/rider/RefuseCash.vue';
+import CashSuccess from '@/components/rider/CashSuccess.vue';
 // import MultiCashModel from '@/components/rider/MultiCashModel.vue';
 export default TableDataMixins.extend({
-  components: { RiderLink, CashRefuse },
+  components: { RiderLink, CashRefuse, CashSuccess },
   data() {
     return {
       /* ---- 必要参数 start ---- */
@@ -139,6 +148,7 @@ export default TableDataMixins.extend({
 
       tempNo: '',
       updateVisible: false,
+      successVisible: false,
       cashVisible: false
     };
   },
@@ -163,20 +173,8 @@ export default TableDataMixins.extend({
     },
     // 提现成功
     updateSuccess(cashNo: string) {
-      (this as any).$confirm({
-        title: '提示',
-        content: '请确保提现已到账',
-        okText: '确定',
-        okType: 'danger',
-        cancelText: '取消',
-        onOk: async () => {
-          const result = await (this as any).$api.cashSuccess({ cashNo });
-          if (result.code === 200) {
-            (this as any).$message.success(result.msg);
-            this.getTableData();
-          }
-        }
-      });
+      this.tempNo = cashNo;
+      this.successVisible = true;
     },
     // 修改状态
     updateFail(cashNo: string) {

@@ -28,4 +28,12 @@ export class CashEntity extends Base {
 
   @Column({ type: 'varchar', length: 100, nullable: true, comment: '提现理由' })
   reason: string;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    comment: '管理员标记提现成功时上传的转账截图凭证',
+  })
+  photoUrl: string;
 }

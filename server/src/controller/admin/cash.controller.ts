@@ -148,6 +148,7 @@ export class CashController extends BaseController {
   }
 
   @Put('/success', { middleware: [AdminMiddleware] })
+  @Validate()
   async success(@Body() dto: CashSuccessDTO) {
     if (this.ctx.adminInfo.isDemo) {
       throw new DefaultError('演示账户无权限操作');
@@ -158,6 +159,7 @@ export class CashController extends BaseController {
       },
       {
         status: 1,
+        photoUrl: dto.photoUrl,
       }
     );
     if (res.affected === 0) {
