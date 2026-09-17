@@ -8,7 +8,6 @@
       </div>
     </div>
     <div class="flex flex-end item-center">
-      开源校园版
       <Avatar class="ml-20" />
     </div>
   </div>
