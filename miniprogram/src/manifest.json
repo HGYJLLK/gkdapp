@@ -54,7 +54,8 @@
         "desc": "获取附近的地点"
       }
     },
-    "requiredPrivateInfos": ["getLocation", "chooseLocation"]
+    "requiredPrivateInfos": ["getLocation", "chooseLocation"],
+    "lazyCodeLoading": "requiredComponents"
   },
   "mp-baidu": {
     "usingComponents": true
