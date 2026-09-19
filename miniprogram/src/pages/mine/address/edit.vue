@@ -71,11 +71,8 @@
 <script lang="ts">
 import Vue from "vue";
 import InputItem from "@/components/mine/InputItem.vue";
-import AddressTab from "@/components/mine/AddressTab.vue";
 import AddressSchoolPicker from "@/components/mine/AddressSchoolPicker.vue";
-import AddressChooseLocation from "@/components/mine/AddressChooseLocation.vue";
 import AddressDefault from "@/components/mine/AddressDetault.vue";
-import AddressSchoolAreaPicker from "@/components/mine/AddressSchoolAreaPicker.vue";
 import {
   getSchoolAddress,
   addressAdd,
@@ -89,11 +86,8 @@ import { SchoolAddressOptions } from "@/utils/constrants";
 export default Vue.extend({
   components: {
     InputItem,
-    AddressTab,
     AddressSchoolPicker,
-    AddressChooseLocation,
     AddressDefault,
-    AddressSchoolAreaPicker,
   },
   data() {
     return {
