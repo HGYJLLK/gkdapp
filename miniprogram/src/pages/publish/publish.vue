@@ -35,14 +35,6 @@
           :info="calculateInfo"
         />
       </view>
-      <!-- <view class="publish-card mt-30 shadow">
-        <CouponBtn
-          :count="couponAbleCount"
-          :label="couponName"
-          :discount="couponDiscount"
-          :price="calculateInfo.totalPrice"
-        />
-      </view> -->
       <view class="publish-card mt-30 shadow">
         <DatePicker
           :active="active"
@@ -85,7 +77,6 @@ import PlayInfo from "@/components/service/play/PlayInfo.vue";
 import SoftwareInfo from "@/components/service/software/SoftwareInfo.vue";
 import ExpressInfo from "@/components/service/express/ExpressInfo.vue";
 import PublishBtn from "@/components/publish/PublishBtn.vue";
-import CouponBtn from "@/components/publish/CouponBtn.vue";
 import { calculate, Publish, publish } from "@/utils/api";
 import { PublishAddressInterface } from "@/utils/constrants";
 import DatePicker from "@/components/publish/DatePicker.vue";
@@ -98,7 +89,6 @@ export default Vue.extend({
     LabelInput,
     ErrandsInfo,
     PublishBtn,
-    CouponBtn,
     DatePicker,
     PlayInfo,
     SoftwareInfo,
