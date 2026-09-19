@@ -233,6 +233,7 @@ export default Vue.extend({
         status: 0,
         mchStatus: 0,
         mchTakeTime: "",
+        photoUrl: "",
         taker: {
           avatarUrl: "",
           nickName: "接单员",
