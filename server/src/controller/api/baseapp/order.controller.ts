@@ -297,8 +297,11 @@ export class OrderSchoolController extends BaseController {
         statuses.push(4);
       }
     }
+    // intoHall 在发布时设置后就不会再被清除，任务大厅只应该展示还能被接的
+    // 待接单任务（status=1）；没有配置时不能兜底成 1,2,3,4，
+    // 否则已完成/进行中的任务会永久留在大厅里
     let wheres = `so.intoHall=1 and so.userNo=u.userNo and so.status in (${
-      statuses.length > 0 ? statuses.toString() : '1,2,3,4'
+      statuses.length > 0 ? statuses.toString() : '1'
     })`;
     const params: any[] = [];
     if (dto.orderType) {
