@@ -335,23 +335,30 @@ export class SchoolOrdersService extends BaseService {
     cancelByNo?: string
   ) {
     const order = await this.checkOrder(dto.orderNo, [0, 1, 2]);
-    const update = await this.schoolOrdersEntity.update(
-      {
-        orderNo: order.orderNo,
-      },
-      {
-        status: -2,
-        cancelTime: new Date(),
-        cancelBy,
-        cancelByNo,
-        cancelReason: dto.cancelReason,
+    // 取消状态与退款请求放在同一事务里：退款提交失败时回滚取消状态，
+    // 避免订单显示已取消但钱没退（不能让退款失败悄悄丢单）
+    await this.schoolOrdersEntity.manager.transaction(
+      async (entity: EntityManager) => {
+        const update = await entity.update(
+          this.schoolOrdersEntity.target,
+          {
+            orderNo: order.orderNo,
+          },
+          {
+            status: -2,
+            cancelTime: new Date(),
+            cancelBy,
+            cancelByNo,
+            cancelReason: dto.cancelReason,
+          }
+        );
+        if (update.affected === 0) {
+          throw new DefaultError('订单取消失败');
+        }
+        // 退款
+        await this.refundOrder(order);
       }
     );
-    if (update.affected === 0) {
-      throw new DefaultError('订单取消失败');
-    }
-    // 退款
-    await this.refundOrder(order);
 
     // 发送订阅消息
     this.subscribeService.sendSubscribeByOrder(order, 'cancel', {});

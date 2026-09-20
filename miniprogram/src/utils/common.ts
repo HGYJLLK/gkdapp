@@ -51,6 +51,9 @@ export const login = () => {
         uni.setStorageSync("provider", provider);
         uni.login({
           provider,
+          fail: () => {
+            resolve(false);
+          },
           success: async (res) => {
             if (provider === "weixin") {
               const result = await $get(

@@ -58,13 +58,13 @@ export const request = async (
             });
           }
           if (data.code === 203) {
+            uni.hideLoading();
             uni.navigateTo({
               url:
                 provider === "qq"
                   ? "/pages/login/phone/phone"
                   : "/pages/login/login",
             });
-            return;
           }
           resolve(data);
         } else {
