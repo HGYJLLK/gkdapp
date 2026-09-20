@@ -112,7 +112,7 @@ export default Vue.extend({
         return;
       }
       uni.showLoading({ title: "修改中" });
-      const result = await userUpdate({ avatarUrl: e.detail.avatarUrl });
+      const result = await userUpdate({ avatarUrl: image as string });
       if (result.code === 200) {
         const result = await userInfo();
         if (result.code === 200) {
