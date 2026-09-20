@@ -1,13 +1,9 @@
 <script lang="ts">
 import Vue from "vue";
-import NextBtn from "@/components/service/components/NextBtn.vue";
 import { ServiceData } from "@/store/modules/school";
 import { PublishAddressInterface } from "@/utils/constrants";
 
 export default Vue.extend({
-  components: {
-    NextBtn,
-  },
   data() {
     return {
       startAddress: {} as PublishAddressInterface,
