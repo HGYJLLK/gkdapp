@@ -10,8 +10,11 @@
             mode="aspectFill"
           ></image>
         </div>
-        <view class="location-title ell">
-          {{ schoolName || "" }}
+        <view class="location-text">
+          <view class="location-title ell">
+            {{ schoolName || "" }}
+          </view>
+          <view class="location-subtitle ell">学生团队自运营 · 非官方</view>
         </view>
       </view>
     </view>
@@ -56,10 +59,19 @@ export default Vue.extend({
     height: 60rpx;
     border-radius: 60rpx;
   }
-  .location-title {
+  .location-text {
     margin-left: 30rpx;
+  }
+  .location-title {
     font-size: 30rpx;
     font-weight: 500;
+    max-width: 480rpx;
+  }
+  .location-subtitle {
+    margin-top: 4rpx;
+    font-size: 20rpx;
+    color: #999999;
+    max-width: 480rpx;
   }
 }
 </style>
