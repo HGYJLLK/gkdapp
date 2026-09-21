@@ -53,13 +53,16 @@ export class HttpService {
   async request(options) {
     return new Promise((resolve: any) => {
       request(options, (err, res, body) => {
-        if (err) {
+        if (err || !res) {
           console.error(err);
+          resolve(undefined);
+          return;
         }
         if (res.statusCode === 200) {
           resolve(body);
         } else {
           console.log(res.statusCode);
+          resolve(undefined);
         }
       });
     });
@@ -67,16 +70,25 @@ export class HttpService {
 
   async pipe(url: string, dirPath: string, fileName: string) {
     return new Promise(resolve => {
+      if (!url) {
+        console.error('下载地址为空: ' + fileName);
+        resolve(false);
+        return;
+      }
       const stream = createWriteStream(join(dirPath, fileName));
       request(url)
+        .on('error', (err: Error) => {
+          console.error(err.message);
+          resolve(false);
+        })
         .pipe(stream)
-        .on('close', (err: Error) => {
-          if (err) {
-            resolve(false);
-            console.error(err.message);
-          }
+        .on('close', () => {
           console.log('文件[' + fileName + ']下载完毕');
           resolve(true);
+        })
+        .on('error', (err: Error) => {
+          console.error(err.message);
+          resolve(false);
         });
     });
   }

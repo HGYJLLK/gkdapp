@@ -179,6 +179,9 @@ export class WxappService extends BaseService {
     const config = (await this.configService.getConfig(
       CONFIG_APPMCH
     )) as AppMchDTO;
+    if (!config.certP12 || !config.certPem || !config.certKey) {
+      throw new DefaultError('微信退款证书未配置，请先在后台配置退款证书');
+    }
     const certDir = join(__dirname, '../', 'cert');
     if (!existsSync(certDir)) {
       mkdirSync(certDir);
