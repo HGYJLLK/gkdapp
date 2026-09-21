@@ -13,3 +13,7 @@ export class OrderCancelDTO extends PickDto(OrderReceiveDTO, ['orderNo']) {
   @Rule(RuleType.string())
   cancelReason?: string;
 }
+
+export class OrderManualRefundDTO extends PickDto(OrderReceiveDTO, [
+  'orderNo',
+]) {}

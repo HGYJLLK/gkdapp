@@ -21,6 +21,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
+import { upload } from "@/utils/common";
 export default Vue.extend({
   props: {
     ma: {
@@ -40,8 +41,22 @@ export default Vue.extend({
       }
       uni.chooseImage({
         count: 3 - this.images.length,
-        success: (res) => {
-          this.images = this.images.concat(res.tempFilePaths as string[]);
+        success: async (res) => {
+          uni.showLoading({ title: "上传中" });
+          const uploaded = await Promise.all(
+            (res.tempFilePaths as string[]).map((path) => upload(path))
+          );
+          uni.hideLoading();
+          const failed = uploaded.some((item) => !item);
+          if (failed) {
+            uni.showToast({
+              title: "部分图片上传失败",
+              icon: "none",
+            });
+          }
+          this.images = this.images.concat(
+            uploaded.filter((item) => !!item) as string[]
+          );
           this.$emit("change", this.images);
         },
       });

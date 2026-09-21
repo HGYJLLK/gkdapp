@@ -400,6 +400,46 @@ export class SchoolOrdersService extends BaseService {
     }
   }
 
+  /**
+   * 补退款：仅用于修复历史 bug 导致"订单已取消但退款没有成功发起"的坏账，
+   * 正常取消流程走 cancelOrder/refundOrder，这里额外做了 refundStatus 幂等校验，
+   * 避免同一笔订单被重复退款。
+   */
+  async manualRefund(orderNo: string) {
+    const order = await this.schoolOrdersEntity.findOne({
+      where: { orderNo },
+    });
+    if (!order) {
+      throw new DefaultError('订单不存在');
+    }
+    if (order.status !== -2) {
+      throw new DefaultError('只能对已取消的订单补退款');
+    }
+    if (order.payType !== 'wxpay' || !order.payTime) {
+      throw new DefaultError('该订单不是微信支付订单或未支付，无需退款');
+    }
+    if (order.refundStatus === 1) {
+      throw new DefaultError('该订单已经退款成功，请勿重复操作');
+    }
+    const refundFee = order.totalPrice;
+    const result = await this.wxappService.refund(
+      order.orderNo,
+      order.totalPrice,
+      refundFee,
+      order.cancelReason || '历史订单补退款'
+    );
+    await this.schoolOrdersEntity.update(
+      { orderNo: order.orderNo },
+      {
+        refundStatus: 1,
+        refundAmount: refundFee,
+        refundTime: new Date(),
+        refundNo: result.outRefundNo,
+      }
+    );
+    return true;
+  }
+
   // 订单信息加密
   orderEncryption(order: SchoolOrdersEntity) {
     this.addressEncryption(order.startAddress);

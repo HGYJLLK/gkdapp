@@ -1,4 +1,4 @@
-import { $get } from "./request";
+import { $get, getAuthHeader } from "./request";
 import Store from "../store";
 import { API } from "./constrants";
 /**
@@ -215,6 +215,7 @@ export const formatDate = (date: string | number, fmt: string) => {
  * @returns
  */
 export const upload = async (filePath: string, perfix?: string) => {
+  const authHeader = await getAuthHeader();
   return new Promise((resolve) => {
     uni.uploadFile({
       url: API() + "upload/put",
@@ -225,6 +226,7 @@ export const upload = async (filePath: string, perfix?: string) => {
         perfix,
       },
       header: {
+        ...authHeader,
         "x-perfix": perfix || "pic/",
       },
 

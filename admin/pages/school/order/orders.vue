@@ -138,6 +138,16 @@
               disabled:
                 text.status === 3 || text.status === 4 || text.status === -1 || text.status === -2,
               key: 'cancel'
+            },
+            {
+              label: '补退款',
+              disabled: !(
+                text.status === -2 &&
+                text.payType === 'wxpay' &&
+                text.payTime &&
+                text.refundStatus !== 1
+              ),
+              key: 'manual-refund'
             }
           ]"
           @click-item="actionClick($event, text)"
@@ -260,6 +270,9 @@ export default TableDataMixins.extend({
         case 'take':
           this.receive(text.orderNo);
           break;
+        case 'manual-refund':
+          this.orderManualRefund(text.orderNo, text.totalPrice);
+          break;
       }
     },
     // 接单
@@ -295,6 +308,23 @@ export default TableDataMixins.extend({
     orderCancel(orderNo: string) {
       this.tempOrderNo = orderNo;
       this.cancelVisible = true;
+    },
+    // 补退款：修复历史 bug 导致"已取消但没退款"的订单，会真实调用微信退款
+    orderManualRefund(orderNo: string, totalPrice: number) {
+      (this as any).$confirm({
+        title: '确认补退款？',
+        content: `将对订单 ${orderNo} 发起真实微信退款 ${totalPrice} 元，此操作不可撤销，请确认该订单确实未退款成功。`,
+        okText: '确定退款',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk: async () => {
+          const result = await (this as any).$api.schoolOrderManualRefund({ orderNo });
+          if (result.code === 200) {
+            (this as any).$message.success(result.msg);
+            this.getTableData();
+          }
+        }
+      });
     }
   }
 });

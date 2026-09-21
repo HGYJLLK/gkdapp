@@ -14,6 +14,23 @@ export const getNo = async (name: string) => {
   return no;
 };
 
+export const getAuthHeader = async () => {
+  const provider = await getProvider();
+  const header = {
+    "version-name": SCHOOL_TYPE,
+  } as any;
+  if (provider === "weixin") {
+    header.wxappno = await getNo("wxappNo");
+  } else if (provider === "alipay") {
+    header.aliappno = await getNo("aliappNo");
+  } else if (provider === "qq") {
+    header.qqappno = await getNo("qqappNo");
+  } else if (provider === "toutiao") {
+    header.ttappno = await getNo("ttappNo");
+  }
+  return header;
+};
+
 export const request = async (
   url: string,
   data: any,

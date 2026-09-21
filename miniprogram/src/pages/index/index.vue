@@ -127,7 +127,7 @@ export default Vue.extend({
   async onShow() {
     await this.checkIsTaker();
     if (this.isTaker) {
-      this.getList();
+      this.getList(false, true);
     }
   },
   onReachBottom() {
@@ -186,15 +186,19 @@ export default Vue.extend({
         this.banners = result.data;
       }
     },
-    async getList(isBottom = false) {
+    async getList(isBottom = false, silent = false) {
       if (isBottom) {
         this.query.current += 1;
       } else {
         this.query.current = 1;
       }
-      uni.showLoading({ title: "加载中" });
+      if (!silent) {
+        uni.showLoading({ title: "加载中" });
+      }
       const result = await fetchOrderSchoolList(Object.assign(this.query));
-      uni.hideLoading();
+      if (!silent) {
+        uni.hideLoading();
+      }
       uni.stopPullDownRefresh();
       this.isPulldown = false;
       if (result.code === 200) {

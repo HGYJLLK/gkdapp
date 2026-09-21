@@ -197,6 +197,7 @@ const api = {
 
   schoolOrderCancel: (data: any) => http.post('/admin/school/order/cancel', data),
   schoolOrderComplete: (data: any) => http.post('/admin/school/order/complete', data),
+  schoolOrderManualRefund: (data: any) => http.post('/admin/school/order/manual-refund', data),
   schoolOrderCapitalTrendList: (data: any) =>
     http.get('/admin/school/order/capitaltrend/list', data),
   schoolorderOneClickHandle: (data: any) => http.post('/admin/school/order/handle', data),

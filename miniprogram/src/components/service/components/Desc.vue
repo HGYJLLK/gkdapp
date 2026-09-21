@@ -39,6 +39,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
+import { upload } from "@/utils/common";
 export default Vue.extend({
   props: {
     mt: {
@@ -84,8 +85,18 @@ export default Vue.extend({
       uni.chooseImage({
         count: 1,
         sizeType: ["compressed"],
-        success: (res) => {
-          this.image = res.tempFilePaths[0];
+        success: async (res) => {
+          uni.showLoading({ title: "上传中" });
+          const image = await upload(res.tempFilePaths[0]);
+          uni.hideLoading();
+          if (!image) {
+            uni.showToast({
+              title: "上传失败",
+              icon: "none",
+            });
+            return;
+          }
+          this.image = image as string;
           this.$emit("image", this.image);
         },
       });

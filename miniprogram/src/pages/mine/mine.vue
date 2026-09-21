@@ -63,6 +63,7 @@ export default Vue.extend({
     return {
       canITaker: false,
       provider: uni.getStorageSync("provider"),
+      loaded: false,
     };
   },
   computed: {
@@ -102,9 +103,14 @@ export default Vue.extend({
     },
   },
   async onShow() {
-    uni.showLoading({ title: "加载中" });
+    if (!this.loaded) {
+      uni.showLoading({ title: "加载中" });
+    }
     const result = await userInfo();
-    uni.hideLoading();
+    if (!this.loaded) {
+      uni.hideLoading();
+      this.loaded = true;
+    }
     if (result.code === 200) {
       this.$store.commit("setProfile", result.data);
     }

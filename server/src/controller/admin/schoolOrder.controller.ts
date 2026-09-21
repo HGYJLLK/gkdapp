@@ -7,7 +7,11 @@ import {
   Query,
 } from '@midwayjs/decorator';
 import { Validate } from '@midwayjs/validate';
-import { OrderCancelDTO, OrderDeliverDTO } from '../../dto/order.dto';
+import {
+  OrderCancelDTO,
+  OrderDeliverDTO,
+  OrderManualRefundDTO,
+} from '../../dto/order.dto';
 import {
   AdminOrderSchoolListDTO,
   AdminOrderSchoolTakerDTO,
@@ -90,6 +94,19 @@ export class SchoolOrderController extends BaseController {
       this.ctx.adminInfo.adminNo
     );
     return this.responseSuccess('订单已取消');
+  }
+
+  /**
+   * 补退款：仅用于修复"订单已取消但没有成功退款"的历史坏账
+   */
+  @Post('/manual-refund')
+  @Validate()
+  async manualRefund(@Body() dto: OrderManualRefundDTO) {
+    if (this.ctx.adminInfo.isDemo) {
+      throw new DefaultError('演示账户无权限操作');
+    }
+    await this.orderService.manualRefund(dto.orderNo);
+    return this.responseSuccess('补退款成功');
   }
 
   @Post('/complete')
