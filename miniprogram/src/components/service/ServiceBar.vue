@@ -47,13 +47,6 @@ export default Vue.extend({
   },
   methods: {
     navTo(item: ServiceData) {
-      const userInfo = uni.getStorageSync("userInfo");
-      if (!userInfo) {
-        uni.navigateTo({
-          url: "/pages/login/login",
-        });
-        return;
-      }
       const path = getServicePath(item.type);
       let url = path;
       if (item.type === "link") {
